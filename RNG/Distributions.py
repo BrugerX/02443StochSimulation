@@ -25,6 +25,9 @@ class Exponential(Distribution):
     def getSample(self, n = 1):
         return expInverse(np.random.uniform(0,1,n),self._lambda)
 
+    def getSampleU(self, U_samples):
+        return expInverse(U_samples, self._lambda)
+
 
 
 class Gamma(Distribution):
@@ -56,6 +59,7 @@ class Pareto(Distribution):
         return crv.ParetoInverse(U_samples,self.k,self.beta,self.null_lower)
 
 
+
 class MixtureModel(Distribution):
 
     """
@@ -69,6 +73,17 @@ class MixtureModel(Distribution):
 
     def getSample(self,n = 1):
         U_samples = np.random.uniform(0,1,n)
+        F = drv.crude_approx(self.X,U_samples)
+        F_samples = []
+
+        for fi in F:
+            sub_sample = self.D[fi].getSample(1)
+            F_samples.append(sub_sample)
+
+        return np.array(F_samples).flatten()
+
+
+    def getSampleU(self,U_samples):
         F = drv.crude_approx(self.X,U_samples)
         F_samples = []
 
